@@ -1,0 +1,112 @@
+#########################################################
+#					MAKEFILE.INCLUDE					#
+#		(c)2018 EmbeddedCoder. All Rights Reserved.		#
+#########################################################
+ifndef ROOT
+  ${error ROOT not defined!}
+endif
+
+ifeq ($(PLATFORM),)
+  -include makefile.platform
+  ifeq ($(PLATFORM),)
+    ${info PLATFORM not defined, using platform 'fk103m4'}
+    PLATFORM=fk103m4
+  else
+    ${info using saved platform '$(PLATFORM)'}
+  endif
+endif
+
+ifeq ($(VERBOSE),1)
+  TRACE_CC =
+  TRACE_LD =
+  TRACE_AR =
+  TRACE_AS =
+  TRACE_OC =
+  Q=
+else
+  TRACE_CC = @echo "  CC    " $<
+  TRACE_LD = @echo "  LD    " $@
+  TRACE_AR = @echo "  AR    " $@
+  TRACE_AS = @echo "  AS    " $<
+  TRACE_OC = @echo "  OC    " $@
+  Q=@
+endif
+#########################################################
+#						MAKEFILEs						#
+#########################################################
+-include makefile.$(PROJECTS)
+-include $(ROOT)/device/led/makefile.led
+-include $(ROOT)/device/button/makefile.button
+-include $(ROOT)/platform/$(PLATFORM)/makefile.$(PLATFORM)
+-include $(ROOT)/target/$(ARCH)/$(TARGET)/makefile.$(TARGET)
+
+#########################################################
+#				DIRECTORYs & SOURCEs					#
+#########################################################
+vpath %.c $(SOURCE_DIRS)
+vpath %.S $(SOURCE_DIRS)
+vpath %.h $(SOURCE_DIRS)
+
+SOURCE_FILES := $(wildcard $(foreach dir,$(SOURCE_DIRS),$(dir)/*.c))
+OBJECT_FILES := $(SOURCE_FILES:.c=.o)
+#########################################################
+#						CFLAGs							#
+#########################################################
+CFLAGS  += $(addprefix -I,$(SOURCE_DIRS))
+
+LDFLAGS += $(CFLAGS)
+LDFLAGS += $(addprefix -I,$(SOURCE_DIRS))
+
+#########################################################
+#						TARGETs							#
+#########################################################
+help:
+	@echo "Usage: make TARGETs... [PLATFORM=<PLATFORMs>] [saveplatform]"
+	@echo "TARGETs:"
+	@echo "      <EMPTY> ............ Default EMPTY target."
+	@echo "      <help> ............. Makefile usages info."
+	@echo "      <clean> ............ Clean compiler files."
+	@echo "      <PLATFORM=?> ....... Specify PLATFORM."
+	@echo "      <saveplatform> ..... Save platform as default."
+
+$(PROJECTS): % : %.bin %.hex
+	@
+
+%.bin: %.elf
+	$(TRACE_OC)
+	$(Q)$(OC) -O binary  $< $@
+
+%.hex: %.elf
+	$(TRACE_OC)
+	$(Q)$(OC) -O ihex  $< $@
+
+%.elf: $(OBJECT_FILES)
+	$(TRACE_LD)
+	$(Q)$(CC) $(LDFLAGS) $^ -o $@
+
+%.o: %.c
+	$(TRACE_CC)
+	$(Q)$(CC) $(CFLAGS) -c $< -o $@
+
+clean:
+	$(Q)$(RM) $(OBJECT_FILES)
+	$(Q)$(RM) *.elf *.bin *.hex
+
+saveplatform:
+	$(Q)$(RM) makefile.platform
+	@echo "saving makefile.platform"
+	@echo >makefile.platform "PLATFORM = $(PLATFORM)"
+
+flash:
+	$(Q)(echo "halt; program $(realpath $(PROJECTS).elf) verify reset" | nc -4 localhost 4444 2>/dev/null) || \
+		openocd -f interface/$(OOCD_INTERFACE).cfg -f target/$(OOCD_TARGET).cfg \
+		-c "program $(PROJECTS).elf verify reset exit" \
+
+debug:
+	$(Q)$(DB) -iex 'target extended | openocd -f interface/$(OOCD_INTERFACE).cfg \
+	-f target/$(OOCD_TARGET).cfg -c "gdb_port pipe"' \
+	-iex 'monitor reset halt' -ex 'load' -ex 'break main' -ex 'c' $(PROJECTS).elf
+
+.PHONY: help clean echo saveplatform openocd flash debug
+
+.PRECIOUS: %.bin %.hex %.elf %.o
