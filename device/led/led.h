@@ -1,9 +1,8 @@
 /*****************************************************************************************
 * @file               : led.h
 * @author             : ayangs
-* @date               : 2017/03/25
-* @brief              : This file contains all the common data types used for the
-*                       STM32L152 clock configuration.
+* @date               : 2019/02/19
+* @brief              : Head files for led.
 ******************************************************************************************/
 #ifndef _led_h_
 #define _led_h_

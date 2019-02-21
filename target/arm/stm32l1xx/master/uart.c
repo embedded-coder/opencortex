@@ -53,7 +53,7 @@ static uint16_t uart_attr[]={
 /*prototypes ----------------------------------------------------------------------------*/
 
 /*private -------------------------------------------------------------------------------*/
-uint32_t stm32f10x_uart_init(uint8_t port, uint32_t baudrate, uint16_t parity,
+uint32_t stm32l1xx_uart_init(uint8_t port, uint32_t baudrate, uint16_t parity, 
 						uint16_t datawidth, uint16_t stopbit, uint16_t flowctrl)
 {
 	assert_return_err(port < dim(uart_port), uart_err_parameter);
@@ -62,7 +62,7 @@ uint32_t stm32f10x_uart_init(uint8_t port, uint32_t baudrate, uint16_t parity,
 		RCC_APB2PeriphClockCmd(uart_clk[port], ENABLE);
 	else
 		RCC_APB1PeriphClockCmd(uart_clk[port], ENABLE);
-	
+
 	USART_InitTypeDef USART_InitStructure={};
 	
 	USART_InitStructure.USART_BaudRate 	 = baudrate;
@@ -79,7 +79,7 @@ uint32_t stm32f10x_uart_init(uint8_t port, uint32_t baudrate, uint16_t parity,
 	return success;
 }
 
-uint32_t stm32f10x_uart_send(uint8_t port, char c)
+uint32_t stm32l1xx_uart_send(uint8_t port, char c)
 {
 	assert_return_err(port < dim(uart_port), uart_err_parameter);
 	
@@ -101,7 +101,7 @@ uint32_t uart_init(uart_t *uart)
 	if(null != uart->rxpin)
 		gpio_init(uart->rxpin);
 
-	stm32f10x_uart_init(uart->port, uart->baudrate, uart->parity,
+	stm32l1xx_uart_init(uart->port, uart->baudrate, uart->parity,
 						uart->datawidth, uart->stopbit, uart->flowctrl);
 	return success;
 }
@@ -110,7 +110,7 @@ uint32_t uart_send(uart_t *uart, char c)
 {
 	assert_return_err(uart, uart_err_parameter);
 
-	stm32f10x_uart_send(uart->port, c);
+	stm32l1xx_uart_send(uart->port, c);
 
 	uart->value = c;
 

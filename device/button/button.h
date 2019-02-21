@@ -1,9 +1,8 @@
 /*****************************************************************************************
 * @file               : button.h
 * @author             : ayangs
-* @date               : 2017/03/25
-* @brief              : This file contains all the common data types used for the
-*                       STM32L152 clock configuration.
+* @date               : 2019/02/19
+* @brief              : Head files for button.
 ******************************************************************************************/
 #ifndef _button_h_
 #define _button_h_

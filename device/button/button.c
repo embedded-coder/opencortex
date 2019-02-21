@@ -1,14 +1,14 @@
 /*****************************************************************************************
 * @file               : button.c
 * @author             : ayangs
-* @date               : 2017/03/25
-* @brief              : This file contains all the common data types used for the
-*                       STM32L152 clock configuration.
+* @date               : 2019/02/19
+* @brief              : Source files for button.
 ******************************************************************************************/
 /*includes ------------------------------------------------------------------------------*/
 #include "button.h"
 #include "errno.h"
 #include "assert.h"
+
 /*macros --------------------------------------------------------------------------------*/
 #define button_event_cb(button) \
 do{\
