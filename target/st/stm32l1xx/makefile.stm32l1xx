@@ -1,0 +1,45 @@
+#########################################################
+#					MAKEFILE.STM32L1XX					#
+#		(c)2018 EmbeddedCoder. All Rights Reserved.		#
+#########################################################
+
+#########################################################
+#				DIRECTORYs & SOURCEs					#
+#########################################################
+SOURCE_DIRS  += $(ROOT)/target/st/stm32l1xx/source \
+                $(ROOT)/target/st/stm32l1xx/startup \
+                $(ROOT)/target/st/stm32l1xx/master \
+                $(ROOT)/target/st/stm32l1xx/ld \
+                $(ROOT)/target/st/common
+
+#########################################################
+#				SHELL & COMPILER COMMANDs				#
+#########################################################
+PREFIX = arm-none-eabi
+AR = $(PREFIX)-ar
+AS = $(PREFIX)-as
+NM = $(PREFIX)-nm
+LD = $(PREFIX)-ld -v
+DB = $(PREFIX)-gdb
+CC = $(PREFIX)-gcc
+OC = $(PREFIX)-objcopy
+RE = $(PREFIX)-readelf
+SZ = $(PREFIX)-size
+OD = $(PREFIX)-objdump
+RM = -rm -rf
+
+#########################################################
+#					CFLAGs & LDFLAGs					#
+#########################################################
+CFLAGS += -g
+CFLAGS += -mcpu=cortex-m3 -mthumb
+CFLAGS += -Wall -Werror
+CFLAGS += -ffunction-sections -fdata-sections
+CFLAGS += -fno-exceptions
+CFLAGS += -D"assert_param(expr)=((void)0)"
+
+LDFLAGS+=-nostartfiles
+LDFLAGS+= -Wl,--no-whole-archive -lm
+
+OOCD_TARGET = stm32l1
+
