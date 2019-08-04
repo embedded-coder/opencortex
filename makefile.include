@@ -98,9 +98,9 @@ saveplatform:
 	@echo >makefile.platform "PLATFORM = $(PLATFORM)"
 
 flash:
-	$(Q)(echo "halt; program $(realpath $(PROJECTS).elf) verify reset" | nc -4 localhost 4444 2>/dev/null) || \
+	$(Q)(echo "halt; program $(realpath $(PROJECTS).hex) verify reset" | nc -4 localhost 4444 2>/dev/null) || \
 		openocd -f interface/$(OOCD_INTERFACE).cfg -f target/$(OOCD_TARGET).cfg \
-		-c "program $(PROJECTS).elf verify reset exit" \
+		-c "program $(PROJECTS).hex verify reset exit" \
 
 debug:
 	$(Q)$(DB) -iex 'target extended | openocd -f interface/$(OOCD_INTERFACE).cfg \
