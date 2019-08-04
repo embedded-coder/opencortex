@@ -63,16 +63,16 @@ uint32_t stm32l1xx_uart_init(uint8_t port, uint32_t baudrate, uint16_t parity,
 	else
 		RCC_APB1PeriphClockCmd(uart_clk[port], ENABLE);
 
-	USART_InitTypeDef USART_InitStructure={};
+	USART_InitTypeDef uart_cfg={};
 	
-	USART_InitStructure.USART_BaudRate 	 = baudrate;
-	USART_InitStructure.USART_WordLength = uart_attr[datawidth];
-	USART_InitStructure.USART_StopBits   = uart_attr[stopbit];
-	USART_InitStructure.USART_Parity     = uart_attr[parity];
-	USART_InitStructure.USART_Mode 	     = USART_Mode_Rx | USART_Mode_Tx;
-	USART_InitStructure.USART_HardwareFlowControl = uart_attr[flowctrl];
+	uart_cfg.USART_BaudRate            = baudrate;
+	uart_cfg.USART_WordLength          = uart_attr[datawidth];
+	uart_cfg.USART_StopBits            = uart_attr[stopbit];
+	uart_cfg.USART_Parity              = uart_attr[parity];
+	uart_cfg.USART_Mode 	           = USART_Mode_Rx | USART_Mode_Tx;
+	uart_cfg.USART_HardwareFlowControl = uart_attr[flowctrl];
 	
-	USART_Init(uart_port[port], &USART_InitStructure);
+	USART_Init(uart_port[port], &uart_cfg);
 
 	USART_Cmd(uart_port[port], ENABLE);
 	
@@ -110,9 +110,9 @@ uint32_t uart_send(uart_t *uart, char c)
 {
 	assert_return_err(uart, uart_err_parameter);
 
-	stm32l1xx_uart_send(uart->port, c);
-
 	uart->value = c;
+	
+	stm32l1xx_uart_send(uart->port, uart->value);
 
 	return success;
 }

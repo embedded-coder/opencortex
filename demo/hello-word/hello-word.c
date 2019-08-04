@@ -23,7 +23,6 @@ void example_process(void)
 {
 	log_str(debug, tags, "hello world! " );
 	log_dec(fatal, null, 1024, 4);
-	
 	delay_ms(500);
 }
 

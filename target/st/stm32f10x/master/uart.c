@@ -26,7 +26,7 @@ static void* uart_port[]={
 	UART5
 };
 
-static uint16_t uart_attr[]={
+static uint16_t uart_attrs[]={
 	/*data width*/
 	USART_WordLength_8b,
 	USART_WordLength_9b,
@@ -66,11 +66,11 @@ uint32_t stm32f10x_uart_init(uint8_t port, uint32_t baudrate, uint16_t parity,
 	USART_InitTypeDef USART_InitStructure={};
 	
 	USART_InitStructure.USART_BaudRate 	 = baudrate;
-	USART_InitStructure.USART_WordLength = uart_attr[datawidth];
-	USART_InitStructure.USART_StopBits   = uart_attr[stopbit];
-	USART_InitStructure.USART_Parity     = uart_attr[parity];
+	USART_InitStructure.USART_WordLength = uart_attrs[datawidth];
+	USART_InitStructure.USART_StopBits   = uart_attrs[stopbit];
+	USART_InitStructure.USART_Parity     = uart_attrs[parity];
 	USART_InitStructure.USART_Mode 	     = USART_Mode_Rx | USART_Mode_Tx;
-	USART_InitStructure.USART_HardwareFlowControl = uart_attr[flowctrl];
+	USART_InitStructure.USART_HardwareFlowControl = uart_attrs[flowctrl];
 	
 	USART_Init(uart_port[port], &USART_InitStructure);
 
@@ -150,9 +150,4 @@ uint32_t uart_send_dec(uart_t *uart, uint32_t l, uint8_t len)
 
 	return success;
 }
-
-
-
-
-
 

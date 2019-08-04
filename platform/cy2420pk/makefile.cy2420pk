@@ -1,0 +1,30 @@
+#########################################################
+#					MAKEFILE.CY2420PK					#
+#		(c)2018 EmbeddedCoder. All Rights Reserved.		#
+#########################################################
+
+#########################################################
+#					PARAMETERSs							#
+#########################################################
+ARCH     := st
+TARGET   := stm32l1xx
+SIZE     := STM32L1XX_HD
+OPTI     := O0
+LDFILE   := stm32l1xxb.ld
+
+LDSCRIPT := $(ROOT)/target/$(ARCH)/$(TARGET)/ld/$(LDFILE)
+#########################################################
+#				DIRECTORYs & SOURCEs					#
+#########################################################
+SOURCE_DIRS  += $(ROOT)/platform/cy2420pk
+
+#########################################################
+#					CFLAGs & LDFLAGs					#
+#########################################################
+CFLAGS += -$(OPTI)
+CFLAGS += -D$(SIZE)
+CFLAGS += -DVECT_TAB_FLASH
+
+LDFLAGS+= -Wl,--gc-sections,-T$(LDSCRIPT)
+
+OOCD_INTERFACE = jlink

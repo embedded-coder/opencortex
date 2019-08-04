@@ -11,6 +11,7 @@
 /* master drivers */
 #include "gpio.h"
 #include "uart.h"
+#include "spi.h"
 
 /* device drivers */
 #include "led.h"
