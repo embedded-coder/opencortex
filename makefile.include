@@ -39,6 +39,7 @@ endif
 -include $(ROOT)/device/button/makefile.button
 -include $(ROOT)/platform/$(PLATFORM)/makefile.$(PLATFORM)
 -include $(ROOT)/target/$(ARCH)/$(TARGET)/makefile.$(TARGET)
+-include $(ROOT)/system/makefile.system
 
 #########################################################
 #				DIRECTORYs & SOURCEs					#

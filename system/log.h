@@ -18,9 +18,40 @@
 #define warning   3   // warnings
 #define error     4   // errors
 #define fatal     5   // fatal errors
-#define silent    6   // silient
+#define silent    6   // nothing
 
 #define log_level   verbose
+
+#define tag_verbose       "\n\r[V]"
+#define tag_debug         "\n\r[D]"
+#define tag_info          "\n\r[I]"
+#define tag_warning       "\n\r[W]"
+#define tag_error         "\n\r[E]"
+#define tag_fatal         "\n\r[F]"
+
+//#define log_longlong
+#define log_special
+#define log_precision
+
+#define log_buf_size 128
+
+#define log_out(level, fmt, ...)								\
+	do{															\
+		if(level >= log_level)									\
+		{														\
+			switch(level)										\
+			{													\
+				case verbose : log_printf(tag_verbose); break;	\
+				case debug   : log_printf(tag_debug);   break;	\
+				case info    : log_printf(tag_info);    break;	\
+				case warning : log_printf(tag_warning); break;	\
+				case error   : log_printf(tag_error);   break;	\
+				case fatal   : log_printf(tag_fatal);   break;	\
+			}													\
+			log_printf(fmt, ##__VA_ARGS__);						\
+		}														\
+	}while(0);
+
 
 /*typedefs ------------------------------------------------------------------------------*/
 typedef struct log{
@@ -34,11 +65,7 @@ typedef struct log{
 
 uint32_t log_init(log_t* log);
 
-uint32_t log_str(uint8_t level, uint32_t flags, char *s);
-
-uint32_t log_dec(uint8_t level, uint32_t flags, uint32_t l, uint8_t len);
-
-
+void log_printf(const char *fmt, ...);
 
 #endif //_log_h_
 

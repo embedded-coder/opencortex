@@ -55,38 +55,31 @@ log_t logs = {
 void usrbtn_short_click_handler(void *button)
 {
 	button_t * btn = (button_t *)button;
-	log_str(debug, tags, btn->name);
-	log_str(debug, null, ",short_click!\n\r");
+	log_out(info,"%s ,short click!\n\r", btn->name);
 }
 
 void usrbtn_multi_click_handler(void *button)
 {
 	button_t * btn = (button_t *)button;
-	log_str(debug, tags, btn->name);
-	log_str(debug, null, ",multi_click! clicks:");
-	log_dec(debug, null, btn->multi_clicks,2);
-	log_str(debug, null, "\n\r");
+	log_out(info,"%s ,multi(%d) click!\n\r", btn->name, btn->multi_clicks);
 }
 
 void usrbtn_long_click_handler(void *button)
 {
 	button_t * btn = (button_t *)button;
-	log_str(debug, tags, btn->name);
-	log_str(debug, null, ",long_click!\n\r");
+	log_out(info,"%s ,long click!\n\r", btn->name);
 }
 
 void usrbtn_press_edge_handler(void *button)
 {
 	button_t * btn = (button_t *)button;
-	log_str(debug, tags, btn->name);
-	log_str(debug, null, ",press_edge!\n\r");
+	log_out(info,"%s ,press edge!\n\r", btn->name);
 }
 
 void usrbtn_press_delay_handler(void *button)
 {
 	button_t * btn = (button_t *)button;
-	log_str(debug, tags, btn->name);
-	log_str(debug, null, ",press_delay!\n\r");
+	log_out(info,"%s ,press delay!\n\r", btn->name);
 }
 
 void platform_init(void)
@@ -95,10 +88,13 @@ void platform_init(void)
 
 	delay_init(1000);
 
+	log_init(&logs);
+	
 	for(uint8_t i = 0; i < dim(leds); i++)
 	{
 		led_init(&leds[i]);
 	}
+	
 	for(uint8_t i = 0; i < dim(buttons); i++)
 	{
 		button_init(&buttons[i]);
@@ -111,6 +107,5 @@ void platform_init(void)
 		button_dettach(&buttons[i],button_event_press_delay);
 	}
 
-	log_init(&logs);
 }
 

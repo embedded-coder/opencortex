@@ -21,8 +21,8 @@
 
 void example_process(void)
 {
-	log_str(debug, tags, "hello world! " );
-	log_dec(fatal, null, 1024, 4);
+	log_out(debug, "hello debug! %d", 1024);
+	log_out(fatal, "hello fatal! %d", 1024);
 	delay_ms(500);
 }
 
