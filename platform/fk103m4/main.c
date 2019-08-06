@@ -22,9 +22,5 @@ extern void example_process(void);
 int main(void)
 {
 	platform_init();
-	
-	while(1)
-	{
-		example_process();
-	}
+	example_process();
 }

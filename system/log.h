@@ -29,7 +29,7 @@
 #define tag_error         "\n\r[E]"
 #define tag_fatal         "\n\r[F]"
 
-//#define log_longlong
+//#define log_longlong //if open, there will be problem,but why?
 #define log_special
 #define log_precision
 
@@ -51,6 +51,9 @@
 			log_printf(fmt, ##__VA_ARGS__);						\
 		}														\
 	}while(0);
+
+#define log_here	\
+        log_printf("\n\rHere %s:%d", __FUNCTION__, __LINE__);
 
 
 /*typedefs ------------------------------------------------------------------------------*/

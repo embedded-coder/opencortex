@@ -14,7 +14,7 @@
 /*typedefs ------------------------------------------------------------------------------*/
 
 /*variables -----------------------------------------------------------------------------*/
-static uint32_t gpio_clk[]={
+static uint32_t gpio_clks[]={
 	RCC_APB2Periph_GPIOA,
 	RCC_APB2Periph_GPIOB,
 	RCC_APB2Periph_GPIOC,
@@ -24,7 +24,7 @@ static uint32_t gpio_clk[]={
 	RCC_APB2Periph_GPIOG
 };
 
-static void* gpio_port[]={
+static void* gpio_ports[]={
 	GPIOA,
 	GPIOB,
 	GPIOC,
@@ -34,7 +34,7 @@ static void* gpio_port[]={
 	GPIOG
 };
 
-static uint16_t gpio_pin[]={
+static uint16_t gpio_pins[]={
 	GPIO_Pin_0,
 	GPIO_Pin_1,
 	GPIO_Pin_2,
@@ -53,7 +53,7 @@ static uint16_t gpio_pin[]={
 	GPIO_Pin_15
 };
 
-static uint8_t gpio_dir[]={
+static uint8_t gpio_dirs[]={
 	GPIO_Mode_AIN,        //Analog input, bypass to adc
 	GPIO_Mode_IN_FLOATING,//Floating input, digt interface
 	GPIO_Mode_IPD,        //Pull-down input, default low
@@ -69,45 +69,42 @@ static uint8_t gpio_dir[]={
 /*private -------------------------------------------------------------------------------*/
 uint32_t stm32f10x_gpio_init(uint8_t port, uint8_t pin, uint8_t dir)
 {
-	if(port >= dim(gpio_port) || pin >= dim(gpio_pin) || dir >= dim(gpio_dir))
-	{
-		return gpio_err_parameter;
-	}
-
-	RCC_APB2PeriphClockCmd(gpio_clk[port], enable);
+	assert_return_err(port < dim(gpio_ports), gpio_err_parameter);
+	assert_return_err(pin < dim(gpio_pins), gpio_err_parameter);
+	assert_return_err(dir < dim(gpio_dirs), gpio_err_parameter);
+	
+	RCC_APB2PeriphClockCmd(gpio_clks[port], enable);
 
 	GPIO_InitTypeDef GPIO_InitStructure={};
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
-	GPIO_InitStructure.GPIO_Mode  = gpio_dir[dir];
-	GPIO_InitStructure.GPIO_Pin   = gpio_pin[pin];
-	GPIO_Init(gpio_port[port], &GPIO_InitStructure);
+	GPIO_InitStructure.GPIO_Mode  = gpio_dirs[dir];
+	GPIO_InitStructure.GPIO_Pin   = gpio_pins[pin];
+	GPIO_Init(gpio_ports[port], &GPIO_InitStructure);
 
 	return success;
 }
 
 uint32_t stm32f10x_gpio_get(uint8_t port, uint8_t pin, uint8_t dir, uint8_t *value)
 {
-	if(port >= dim(gpio_port)|| pin >= dim(gpio_pin) || dir >= 4)
-	{
-		return gpio_err_parameter;
-	}
+	assert_return_err(port < dim(gpio_ports), gpio_err_parameter);
+	assert_return_err(pin < dim(gpio_pins), gpio_err_parameter);
+	assert_return_err(dir < 4, gpio_err_parameter);
 
-	*value = GPIO_ReadInputDataBit(gpio_port[port],gpio_pin[pin]);
+	*value = GPIO_ReadInputDataBit(gpio_ports[port],gpio_pins[pin]);
 
 	return success;
 }
 
 uint32_t stm32f10x_gpio_set(uint8_t port, uint8_t pin, uint8_t dir, uint8_t *value)
 {
-	if(port >= dim(gpio_port)|| pin >= dim(gpio_pin) || dir >= dim(gpio_dir))
-	{
-		return gpio_err_parameter;
-	}
+	assert_return_err(port < dim(gpio_ports), gpio_err_parameter);
+	assert_return_err(pin < dim(gpio_pins), gpio_err_parameter);
+	assert_return_err(dir < dim(gpio_dirs), gpio_err_parameter);
 
 	if(*value == 0)
-		GPIO_ResetBits(gpio_port[port],gpio_pin[pin]);
+		GPIO_ResetBits(gpio_ports[port],gpio_pins[pin]);
 	else
-		GPIO_SetBits(gpio_port[port],gpio_pin[pin]);
+		GPIO_SetBits(gpio_ports[port],gpio_pins[pin]);
 
 	return success;
 }
@@ -115,7 +112,8 @@ uint32_t stm32f10x_gpio_set(uint8_t port, uint8_t pin, uint8_t dir, uint8_t *val
 /*public --------------------------------------------------------------------------------*/
 uint32_t gpio_init(gpio_t *gpio)
 {
-
+	assert_return_err(gpio, gpio_err_parameter);
+	
 	stm32f10x_gpio_init(gpio->port, gpio->pin, gpio->dir);
 
 	return success;
@@ -124,6 +122,8 @@ uint32_t gpio_init(gpio_t *gpio)
 
 uint32_t gpio_set(gpio_t *gpio, uint8_t *value)
 {
+
+	assert_return_err(gpio, gpio_err_parameter);
 
 	gpio->value = *value;
 	
@@ -135,6 +135,8 @@ uint32_t gpio_set(gpio_t *gpio, uint8_t *value)
 
 uint32_t gpio_get(gpio_t *gpio, uint8_t *value)
 {
+	
+	assert_return_err(gpio, gpio_err_parameter);
 	
 	stm32f10x_gpio_get(gpio->port, gpio->pin, gpio->dir, &gpio->value);
 

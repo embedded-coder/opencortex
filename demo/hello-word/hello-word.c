@@ -21,8 +21,12 @@
 
 void example_process(void)
 {
-	log_out(debug, "hello debug! %d", 1024);
-	log_out(fatal, "hello fatal! %d", 1024);
-	delay_ms(500);
+	while(1)
+	{
+		log_out(debug, "hello debug! %d", 1024);
+		log_out(fatal, "hello fatal! %d", 1024);
+
+		delay_ms(500);
+	}
 }
 
