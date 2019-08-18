@@ -50,6 +50,7 @@ vpath %.h $(SOURCE_DIRS)
 
 SOURCE_FILES := $(wildcard $(foreach dir,$(SOURCE_DIRS),$(dir)/*.c))
 OBJECT_FILES := $(SOURCE_FILES:.c=.o)
+DEPEND_FILES := $(SOURCE_FILES:.c=.d)
 #########################################################
 #						CFLAGs							#
 #########################################################
@@ -89,8 +90,19 @@ $(PROJECTS): % : %.bin %.hex
 	$(TRACE_CC)
 	$(Q)$(CC) $(CFLAGS) -c $< -o $@
 
+%.d: %.c
+	$(Q)set -e; \
+	rm -f $@; \
+	$(CC) -MM $(CFLAGS) $< > $@.$$$$; \
+	sed 's,\($(notdir $*)\)\.o[ :]*,\1.o $(notdir $@) : ,g' < $@.$$$$ > $@; \
+	rm -f $@.$$$$
+
+ifneq ($(MAKECMDGOALS),clean)
+-include $(DEPEND_FILES)
+endif
+
 clean:
-	$(Q)$(RM) $(OBJECT_FILES)
+	$(Q)$(RM) $(OBJECT_FILES) $(DEPEND_FILES)
 	$(Q)$(RM) *.elf *.bin *.hex
 
 saveplatform:
@@ -110,4 +122,4 @@ debug:
 
 .PHONY: help clean echo saveplatform openocd flash debug
 
-.PRECIOUS: %.bin %.hex %.elf %.o
+.PRECIOUS: %.bin %.hex %.elf
