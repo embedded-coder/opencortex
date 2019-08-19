@@ -122,4 +122,5 @@ debug:
 
 .PHONY: help clean echo saveplatform openocd flash debug
 
-.PRECIOUS: %.bin %.hex %.elf
+.PRECIOUS: %.bin %.hex %.elf %.o
+
