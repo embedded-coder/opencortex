@@ -92,10 +92,10 @@ $(PROJECTS): % : %.bin %.hex
 
 %.d: %.c
 	$(Q)set -e; \
-	$(RM) $@; \
+	rm -f $@; \
 	$(CC) -MM $(CFLAGS) $< > $@.$$$$; \
 	sed 's,\($(notdir $*)\)\.o[ :]*,\1.o $(notdir $@) : ,g' < $@.$$$$ > $@; \
-	$(RM) $@.$$$$
+	rm -f $@.$$$$
 
 ifneq ($(MAKECMDGOALS),clean)
 -include $(DEPEND_FILES)
