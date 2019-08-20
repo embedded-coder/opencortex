@@ -26,7 +26,7 @@ OC = $(PREFIX)-objcopy
 RE = $(PREFIX)-readelf
 SZ = $(PREFIX)-size
 OD = $(PREFIX)-objdump
-RM = -rm -rf
+RM = rm -rf
 
 #########################################################
 #					CFLAGs & LDFLAGs					#

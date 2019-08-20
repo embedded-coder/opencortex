@@ -1,38 +1,37 @@
 /*****************************************************************************************
-* @file               : platform.h
+* @file               : cpu.c
 * @author             : ayangs
 * @date               : 2019/02/19
-* @brief              : Head files for platform.
+* @brief              : Source files for cpu.
 ******************************************************************************************/
-#ifndef _platform_h_
-#define _platform_h_
 /*includes ------------------------------------------------------------------------------*/
 #include "includes.h"
-/*cpu*/
-#include "cpu.h"
 
-/* master drivers */
-#include "gpio.h"
-#include "uart.h"
-
-/* device drivers */
-#include "led.h"
-#include "button.h"
-
-/* others */
-#include "delay.h"
-#include "log.h"
-#include "errno.h"
 /*macros --------------------------------------------------------------------------------*/
 
 /*typedefs ------------------------------------------------------------------------------*/
 
 /*variables -----------------------------------------------------------------------------*/
-extern led_t leds[];
-extern button_t buttons[];
-extern log_t logs;
-/*prototypes ----------------------------------------------------------------------------*/
-void platform_init(void);
 
-#endif //_platform_h_
+/*prototypes ----------------------------------------------------------------------------*/
+
+/*private -------------------------------------------------------------------------------*/
+
+/*public --------------------------------------------------------------------------------*/
+
+uint32_t cpu_interrupt_disable(void)
+{
+  uint32_t result;
+
+  __ASM volatile ("mrs %0, primask" : "=r" (result));
+  
+  __ASM volatile ("cpsid i" : : : "memory");
+  
+  return(result);
+}
+
+void cpu_interrupt_enable(uint32_t level)
+{
+	__ASM volatile ("msr primask, %0" : : "r" (level) );
+}
 
