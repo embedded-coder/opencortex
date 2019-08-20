@@ -92,10 +92,10 @@ $(PROJECTS): % : %.bin %.hex
 
 %.d: %.c
 	$(Q)set -e; \
-	rm -f $@; \
+	$(RM) $@; \
 	$(CC) -MM $(CFLAGS) $< > $@.$$$$; \
 	sed 's,\($(notdir $*)\)\.o[ :]*,\1.o $(notdir $@) : ,g' < $@.$$$$ > $@; \
-	rm -f $@.$$$$
+	$(RM) $@.$$$$
 
 ifneq ($(MAKECMDGOALS),clean)
 -include $(DEPEND_FILES)
@@ -123,3 +123,4 @@ debug:
 .PHONY: help clean echo saveplatform openocd flash debug
 
 .PRECIOUS: %.bin %.hex %.elf %.o
+
