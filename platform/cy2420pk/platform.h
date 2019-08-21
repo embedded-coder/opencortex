@@ -8,6 +8,7 @@
 #define _platform_h_
 /*includes ------------------------------------------------------------------------------*/
 #include "includes.h"
+
 /* master drivers */
 #include "gpio.h"
 #include "uart.h"
@@ -21,6 +22,7 @@
 #include "delay.h"
 #include "log.h"
 #include "errno.h"
+#include "assert.h"
 /*macros --------------------------------------------------------------------------------*/
 
 /*typedefs ------------------------------------------------------------------------------*/

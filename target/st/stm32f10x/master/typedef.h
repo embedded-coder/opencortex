@@ -8,6 +8,7 @@
 #define _typedef_h_
 /*includes ------------------------------------------------------------------------------*/
 #include <stdint.h>
+#include <string.h>
 /*macros --------------------------------------------------------------------------------*/
 #define null	0
 
@@ -23,9 +24,7 @@
 #define set_bit(y,x)	((y) | bit(x))
 #define clr_bit(y,x)	((y) &~ bit(x))
 
-
 #define _inline_				static __inline
-
 
 /* the version of GNU GCC must be greater than 4.x */
 #define va_list					__builtin_va_list
@@ -34,10 +33,6 @@
 #define va_arg(v,l) 			__builtin_va_arg(v,l)
 
 /*typedefs ------------------------------------------------------------------------------*/
-typedef long					base_t;
-typedef unsigned long			ubase_t;
-
-typedef ubase_t					size_t;
 
 
 /*variables -----------------------------------------------------------------------------*/
