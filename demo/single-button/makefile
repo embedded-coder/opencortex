@@ -1,6 +1,6 @@
 #########################################################
 #						MAKEFILE						#
-#		(c)2018 EmbeddedCoder. All Rights Reserved.		#
+#	(c)2018-2019 EmbeddedCoder. All Rights Reserved.	#
 #########################################################
 PROJECTS = single-button
 all: $(PROJECTS)

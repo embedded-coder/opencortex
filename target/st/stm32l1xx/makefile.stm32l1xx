@@ -1,6 +1,6 @@
 #########################################################
 #					MAKEFILE.STM32L1XX					#
-#		(c)2018 EmbeddedCoder. All Rights Reserved.		#
+#	(c)2018-2019 EmbeddedCoder. All Rights Reserved.	#
 #########################################################
 
 #########################################################
@@ -31,7 +31,9 @@ RM = rm -rf
 #########################################################
 #					CFLAGs & LDFLAGs					#
 #########################################################
+ifndef RELEASE
 CFLAGS += -g
+endif
 CFLAGS += -mcpu=cortex-m3 -mthumb
 CFLAGS += -Wall -Werror
 CFLAGS += -ffunction-sections -fdata-sections
