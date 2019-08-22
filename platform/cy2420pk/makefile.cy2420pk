@@ -9,7 +9,7 @@
 ARCH     := st
 TARGET   := stm32l1xx
 SIZE     := STM32L1XX_HD
-OPTI     := O0
+OPTI     := O3
 LDFILE   := stm32l1xxb.ld
 
 LDSCRIPT := $(ROOT)/target/$(ARCH)/$(TARGET)/ld/$(LDFILE)

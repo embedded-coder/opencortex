@@ -31,6 +31,7 @@ else
   TRACE_OC = @echo "  OC    " $@
   Q=@
 endif
+
 #########################################################
 #						MAKEFILEs						#
 #########################################################
@@ -51,13 +52,15 @@ vpath %.h $(SOURCE_DIRS)
 SOURCE_FILES := $(wildcard $(foreach dir,$(SOURCE_DIRS),$(dir)/*.c))
 OBJECT_FILES := $(SOURCE_FILES:.c=.o)
 DEPEND_FILES := $(SOURCE_FILES:.c=.d)
+
 #########################################################
-#						CFLAGs							#
+#					CFLAGs & LDFLAGS					#
 #########################################################
 CFLAGS  += $(addprefix -I,$(SOURCE_DIRS))
 
 LDFLAGS += $(CFLAGS)
 LDFLAGS += $(addprefix -I,$(SOURCE_DIRS))
+LDFLAGS += -Wl,-Map=$(PROJECTS).map
 
 #########################################################
 #						TARGETs							#
@@ -103,7 +106,7 @@ endif
 
 clean:
 	$(Q)$(RM) $(OBJECT_FILES) $(DEPEND_FILES)
-	$(Q)$(RM) *.elf *.bin *.hex
+	$(Q)$(RM) *.elf *.bin *.hex *.map
 
 saveplatform:
 	$(Q)$(RM) makefile.platform
@@ -122,5 +125,5 @@ debug:
 
 .PHONY: help clean echo saveplatform openocd flash debug
 
-.PRECIOUS: %.bin %.hex %.elf %.o
+.PRECIOUS: %.bin %.hex %.elf %.map %.o
 

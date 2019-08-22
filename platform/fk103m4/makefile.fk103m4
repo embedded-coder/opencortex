@@ -9,7 +9,7 @@
 ARCH     := st
 TARGET   := stm32f10x
 SIZE     := STM32F10X_HD
-OPTI     := O0
+OPTI     := O3
 LDFILE   := stm32f10xe.ld
 
 LDSCRIPT := $(ROOT)/target/$(ARCH)/$(TARGET)/ld/$(LDFILE)
