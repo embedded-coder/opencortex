@@ -10,6 +10,11 @@
 #include "assert.h"
 #include "uart.h"
 /*macros --------------------------------------------------------------------------------*/
+
+/*typedefs ------------------------------------------------------------------------------*/
+
+/*variables -----------------------------------------------------------------------------*/
+
 static uint32_t uart_clk[]={
 	RCC_APB2Periph_USART1,
 	RCC_APB1Periph_USART2,
@@ -26,7 +31,7 @@ static void* uart_port[]={
 	UART5
 };
 
-static uint16_t uart_attr[]={
+static uint16_t uart_attrs[]={
 	/*data width*/
 	USART_WordLength_8b,
 	USART_WordLength_9b,
@@ -46,10 +51,6 @@ static uint16_t uart_attr[]={
 	USART_HardwareFlowControl_RTS_CTS
 };
 
-/*typedefs ------------------------------------------------------------------------------*/
-
-/*variables -----------------------------------------------------------------------------*/
-
 /*prototypes ----------------------------------------------------------------------------*/
 
 /*private -------------------------------------------------------------------------------*/
@@ -66,16 +67,17 @@ uint32_t stm32l1xx_uart_init(uint8_t port, uint32_t baudrate, uint16_t parity,
 	USART_InitTypeDef uart_cfg={};
 	
 	uart_cfg.USART_BaudRate            = baudrate;
-	uart_cfg.USART_WordLength          = uart_attr[datawidth];
-	uart_cfg.USART_StopBits            = uart_attr[stopbit];
-	uart_cfg.USART_Parity              = uart_attr[parity];
+	uart_cfg.USART_WordLength          = uart_attrs[datawidth];
+	uart_cfg.USART_StopBits            = uart_attrs[stopbit];
+	uart_cfg.USART_Parity              = uart_attrs[parity];
 	uart_cfg.USART_Mode 	           = USART_Mode_Rx | USART_Mode_Tx;
-	uart_cfg.USART_HardwareFlowControl = uart_attr[flowctrl];
+	uart_cfg.USART_HardwareFlowControl = uart_attrs[flowctrl];
 	
 	USART_Init(uart_port[port], &uart_cfg);
 
 	USART_Cmd(uart_port[port], ENABLE);
-	
+
+	USART_GetFlagStatus(uart_port[port], USART_FLAG_TC);
 	return success;
 }
 

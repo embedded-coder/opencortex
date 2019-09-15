@@ -1,42 +1,25 @@
 /*****************************************************************************************
-* @file               : platform.h
+* @file               : version.h
 * @author             : ayangs
 * @date               : 2019/02/19
-* @brief              : Head files for platform.
+* @brief              : Head files for version.
 ******************************************************************************************/
-#ifndef _platform_h_
-#define _platform_h_
+#ifndef _version_h_
+#define _version_h_
 /*includes ------------------------------------------------------------------------------*/
-#include "includes.h"
-/*cpu*/
-#include "cpu.h"
-
-/* master drivers */
-#include "gpio.h"
-#include "uart.h"
-#include "flash.h"
-
-/* device drivers */
-#include "led.h"
-#include "button.h"
-
-/* others */
-#include "delay.h"
-#include "log.h"
-#include "errno.h"
-#include "assert.h"
-#include "version.h"
+#include "typedef.h"
 
 /*macros --------------------------------------------------------------------------------*/
 
 /*typedefs ------------------------------------------------------------------------------*/
 
 /*variables -----------------------------------------------------------------------------*/
-extern led_t leds[];
-extern button_t buttons[];
-extern log_t logs;
+
 /*prototypes ----------------------------------------------------------------------------*/
-void platform_init(void);
+extern char* get_build_version(void);
 
-#endif //_platform_h_
+extern char* get_build_date(void);
 
+extern char* get_build_time(void);
+
+#endif /* _version_h_ */

@@ -10,6 +10,10 @@
 #include "assert.h"
 #include "uart.h"
 /*macros --------------------------------------------------------------------------------*/
+
+/*typedefs ------------------------------------------------------------------------------*/
+
+/*variables -----------------------------------------------------------------------------*/
 static uint32_t uart_clk[]={
 	RCC_APB2Periph_USART1,
 	RCC_APB1Periph_USART2,
@@ -46,10 +50,6 @@ static uint16_t uart_attrs[]={
 	USART_HardwareFlowControl_RTS_CTS
 };
 
-/*typedefs ------------------------------------------------------------------------------*/
-
-/*variables -----------------------------------------------------------------------------*/
-
 /*prototypes ----------------------------------------------------------------------------*/
 
 /*private -------------------------------------------------------------------------------*/
@@ -63,19 +63,20 @@ uint32_t stm32f10x_uart_init(uint8_t port, uint32_t baudrate, uint16_t parity,
 	else
 		RCC_APB1PeriphClockCmd(uart_clk[port], ENABLE);
 	
-	USART_InitTypeDef USART_InitStructure={};
+	USART_InitTypeDef uart_cfg={};
 	
-	USART_InitStructure.USART_BaudRate 	 = baudrate;
-	USART_InitStructure.USART_WordLength = uart_attrs[datawidth];
-	USART_InitStructure.USART_StopBits   = uart_attrs[stopbit];
-	USART_InitStructure.USART_Parity     = uart_attrs[parity];
-	USART_InitStructure.USART_Mode 	     = USART_Mode_Rx | USART_Mode_Tx;
-	USART_InitStructure.USART_HardwareFlowControl = uart_attrs[flowctrl];
+	uart_cfg.USART_BaudRate            = baudrate;
+	uart_cfg.USART_WordLength          = uart_attrs[datawidth];
+	uart_cfg.USART_StopBits            = uart_attrs[stopbit];
+	uart_cfg.USART_Parity              = uart_attrs[parity];
+	uart_cfg.USART_Mode                = USART_Mode_Rx | USART_Mode_Tx;
+	uart_cfg.USART_HardwareFlowControl = uart_attrs[flowctrl];
 	
-	USART_Init(uart_port[port], &USART_InitStructure);
+	USART_Init(uart_port[port], &uart_cfg);
 
 	USART_Cmd(uart_port[port], ENABLE);
-	
+
+	USART_GetFlagStatus(uart_port[port], USART_FLAG_TC);
 	return success;
 }
 

@@ -41,6 +41,7 @@ endif
 -include $(ROOT)/platform/$(PLATFORM)/makefile.$(PLATFORM)
 -include $(ROOT)/target/$(ARCH)/$(TARGET)/makefile.$(TARGET)
 -include $(ROOT)/system/makefile.system
+-include $(ROOT)/boot/makefile.boot
 
 #########################################################
 #				DIRECTORYs & SOURCEs					#

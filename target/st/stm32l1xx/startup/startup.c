@@ -128,7 +128,7 @@ void Reset_Handler(void) {
 	
 	(void)main();                       /* start execution of the program */
 	
-	while(1);
+	while(1);                           /* should not go to here */
 }
 
 SECTION(".vectors")
