@@ -1,7 +1,7 @@
 /*****************************************************************************************
 * @file               : boot.c
 * @author             : ayangs
-* @date               : 2019/02/19
+* @date               : 2019/09/15
 * @brief              : Source files for boot.
 ******************************************************************************************/
 /*includes ------------------------------------------------------------------------------*/
@@ -9,9 +9,6 @@
 #include "boot.h"
 
 /*macros --------------------------------------------------------------------------------*/
-#define flash_base        ((uint32_t)0x08000000u)
-#define flash_page(page)  (flash_base + page * 0x800)
-
 #define boot_bootloadr    flash_page(0)  //0x08000000
 #define boot_application0 flash_page(64) //0x08020000
 #define boot_application1 flash_page(128)//0x08040000
@@ -33,6 +30,7 @@ static uint8_t enter_boot_mode = 0;
 static uint8_t boot_option = 1;
 static uint8_t boot_option_effective = 0;
 static boot_info_t boot_info;
+
 /*prototypes ----------------------------------------------------------------------------*/
 
 /*private -------------------------------------------------------------------------------*/
@@ -123,15 +121,15 @@ void boot_info_init(void)
 	boot_info.application1_addr      = boot_application1;
 	boot_info.effective_application  = 0;
 	
-	flash_earse(boot_info_page, 0x200);
+	flash_earse(boot_info_page, flash_page_size);
 	flash_write(boot_info_page, (uint32_t*)&boot_info, sizeof(boot_info));
 }
 
 void boot_info_read(void)
 {
-	uint32_t data[0x200]={};
+	uint32_t data[flash_page_size/4]={};
 	
-	flash_read(boot_info_page, data, 0x200);
+	flash_read(boot_info_page, data, sizeof(boot_info));
 
 	memcpy(&boot_info, data, sizeof(boot_info));
 

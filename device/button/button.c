@@ -62,7 +62,18 @@ uint32_t button_dettach(button_t *button, button_event_e event)
 	assert_return_err(button, button_err_parameter);
 	assert_return_err(event < button_event_max, button_err_parameter);
 
-	button->cb[event] = null;
+	button->status.raw  = 0;
+	button->status.trig = 0;
+	button->status.cont = 0;
+	
+	button->state       = button_state_idle;
+
+	button->event       = button_event_none;
+	
+	button->ticks       = 0;	
+	button->clicks      = 0;
+	
+	button->cb[event]   = null;
 	return success;
 }
 

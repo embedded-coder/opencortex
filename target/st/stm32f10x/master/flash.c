@@ -10,70 +10,100 @@
 #include "assert.h"
 #include "flash.h"
 /*macros --------------------------------------------------------------------------------*/
-#define FLASH_PAGE_BITS    (11)
-#define FLASH_PAGE_SIZE    ((uint32_t)(1 << FLASH_PAGE_BITS))//2KByte
 
 /*typedefs ------------------------------------------------------------------------------*/
 
 /*variables -----------------------------------------------------------------------------*/
 
 /*prototypes ----------------------------------------------------------------------------*/
-#include "log.h"
+
 /*private -------------------------------------------------------------------------------*/
-void stm32f10x_flash_earse(uint32_t flash, uint32_t nwords)
+uint32_t stm32f10x_flash_earse(uint32_t flash, uint32_t nbytes)
 {
-	FLASH_Status status = FLASH_COMPLETE;
+	assert_return_err(flash > flash_base, flash_err_parameter);
+
+	uint32_t status = success;
 	
-	uint32_t bytes = nwords << 2;
-	
-	uint32_t pages = (bytes & (FLASH_PAGE_SIZE-1)) ? ((bytes >> FLASH_PAGE_BITS) + 1) : (bytes >> FLASH_PAGE_BITS);
+	uint32_t npages = (nbytes & (flash_page_size-1)) ? ((nbytes >> flash_page_bits) + 1) : (nbytes >> flash_page_bits);
 
 	FLASH_Unlock();
 
 	FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR | FLASH_FLAG_OPTERR);
 
-	for(uint32_t i = 0; (i < pages) && (status == FLASH_COMPLETE); i++)
+	for(uint32_t ipage = 0; (ipage < npages) && (status == success); ipage++)
 	{
-		status = FLASH_ErasePage(flash + (FLASH_PAGE_SIZE * i));
+		if(FLASH_COMPLETE != FLASH_ErasePage(flash + (flash_page_size * ipage)))
+		{
+			status = flash_err_erase;
+		}
 	}
 
 	FLASH_Lock();
+	
+	return status;
 }
 
-void stm32f10x_flash_write(uint32_t flash, uint32_t* data, uint32_t nwords)
+uint32_t stm32f10x_flash_write(uint32_t flash, uint32_t* data, uint32_t nbytes)
 {
-	FLASH_Status status = FLASH_COMPLETE;
+	assert_return_err(flash > flash_base, flash_err_parameter);
+	assert_return_err(data, flash_err_parameter);
+
+	uint32_t status = success;
+
+	uint32_t nwords = (nbytes & 3) ? ((nbytes >> 2) + 1) : (nbytes >> 2);
 	
 	FLASH_Unlock();
 
 	FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_PGERR | FLASH_FLAG_WRPRTERR | FLASH_FLAG_OPTERR);
 
-	for(uint32_t iwords = 0; (iwords < nwords) && (status == FLASH_COMPLETE); iwords++)
+	for(uint32_t iwords = 0; (iwords < nwords) && (status == success); iwords++)
 	{
-		status = FLASH_ProgramWord(flash + iwords * 4, data[iwords]);
+		if(FLASH_COMPLETE != FLASH_ProgramWord(flash + iwords * 4, data[iwords]))
+		{
+			status = flash_err_write;
+		}
+		else if(data[iwords] != *(volatile uint32_t*)(flash + iwords * 4))
+		{
+			status = flash_err_readback;
+		}
 	}
 
 	FLASH_Lock();
+	
+	return status;
 }
 
 /*public --------------------------------------------------------------------------------*/
 
-void flash_earse(uint32_t address, uint32_t nwords)
+uint32_t flash_earse(uint32_t flash, uint32_t nbytes)
 {
-	stm32f10x_flash_earse(address, nwords);
+	assert_return_err(flash > flash_base, flash_err_parameter);
+	
+	return stm32f10x_flash_earse(flash, nbytes);
 }
 
-void flash_write(uint32_t flash, uint32_t* data, uint32_t nwords)
+uint32_t flash_write(uint32_t flash, uint32_t* data, uint32_t nbytes)
 {
-	stm32f10x_flash_write(flash, data, nwords);
+	assert_return_err(flash > flash_base, flash_err_parameter);
+	assert_return_err(data, flash_err_parameter);
+	
+	return stm32f10x_flash_write(flash, data, nbytes);
 }
 
-void flash_read(uint32_t flash, uint32_t* data, uint32_t nwords)
+uint32_t flash_read(uint32_t flash, uint32_t* data, uint32_t nbytes)
 {
+	assert_return_err(flash > flash_base, flash_err_parameter);
+	assert_return_err(data, flash_err_parameter);
+
+	uint32_t status = success;
+	
+	uint32_t nwords = (nbytes & 3) ? ((nbytes >> 2) + 1) : (nbytes >> 2);
+
 	for(uint32_t iwords = 0; iwords < nwords; iwords++)
 	{
 		*(data + iwords) = *(uint32_t*)(flash + iwords * 4);
 	}
+	return status;
 }
 
 
