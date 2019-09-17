@@ -14,16 +14,17 @@
 
 /*typedefs ------------------------------------------------------------------------------*/
 typedef struct uart{
-	char*   name;
-	gpio_t  *txpin;
-	gpio_t  *rxpin;
+	char*    name;
+	gpio_t*  txpin;
+	gpio_t*  rxpin;
 	uint32_t baudrate;
-	uint8_t datawidth;
-	uint8_t parity;
-	uint8_t stopbit;
-	uint8_t flowctrl;
-	uint8_t port;
-	char    value;
+	uint8_t  datawidth;
+	uint8_t  parity;
+	uint8_t  stopbit;
+	uint8_t  flowctrl;
+	uint8_t  irq;
+	uint8_t  port;
+	char     value;
 }uart_t;
 
 typedef enum uart_attr{
@@ -43,7 +44,20 @@ typedef enum uart_attr{
 	flowctrl_none,
 	flowctrl_rts,
 	flowctrl_cts,
-	flowctrl_rts_cts
+	flowctrl_rts_cts,
+	/*irq resource*/
+	irq_pe,
+	irq_txe,
+	irq_tc,
+	irq_rxne,
+	irq_ore_rx,
+	irq_idle,
+	irq_lbd,
+	irq_cts,
+	irq_err,
+	irq_ore_er,
+	irq_ne,
+	irq_fe
 }uart_attr_e;
 
 /*variables -----------------------------------------------------------------------------*/

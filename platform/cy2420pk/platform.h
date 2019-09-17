@@ -9,10 +9,14 @@
 /*includes ------------------------------------------------------------------------------*/
 #include "includes.h"
 
+/*cpu*/
+#include "cpu.h"
+
 /* master drivers */
 #include "gpio.h"
 #include "uart.h"
 #include "spi.h"
+#include "flash.h"
 
 /* device drivers */
 #include "led.h"
@@ -23,6 +27,8 @@
 #include "log.h"
 #include "errno.h"
 #include "assert.h"
+#include "version.h"
+
 /*macros --------------------------------------------------------------------------------*/
 
 /*typedefs ------------------------------------------------------------------------------*/

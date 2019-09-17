@@ -15,18 +15,60 @@
 
 /* MASTERs */
 gpio_t gpios[] = {
-	{"GpioC0", low, port('C'), 0,  out_pushpull},		//led
-	{"GpioC1", low, port('C'), 1,  in_pullup },			//buttons
-	{"GpioA9", low, port('A'), 9,  out_pushpull_mux},	//uart1 tx
-	{"GpioA10",low, port('A'), 10, in_float}			//uart1 rx
+	{//led
+		.name  = "GpioC0", 
+		.value = low,
+		.port  = port('C'),
+		.pin   = 0,
+		.dir   = out_pushpull
+	},
+	{//buttons
+		.name  = "GpioC1",
+		.value = low,
+		.port  = port('C'), 
+		.pin   = 1,
+		.dir   = in_pullup
+	},
+	{//uart1 tx
+		.name  = "GpioA9",
+		.value = low,
+		.port  = port('A'),
+		.pin   = 9,
+		.dir   = out_pushpull_mux
+	},
+	{//uart1 rx
+		.name  = "GpioA10",
+		.value = low,
+		.port  = port('A'),
+		.pin   = 10,
+		.dir   = in_float
+	}
 };
+
 uart_t uarts[] = {
-	{"uart", &gpios[2], &gpios[3], 115200, datawidth_8b, parity_none, stopbits_1, flowctrl_none, 0, 0}
+	{
+		.name      = "uart",
+		.txpin     = &gpios[2],
+		.rxpin     = &gpios[3],
+		.baudrate  = 115200,
+		.datawidth = datawidth_8b,
+		.parity    = parity_none,
+		.stopbit   = stopbits_1,
+		.flowctrl  = flowctrl_none,
+		.irq       = irq_rxne,
+		.port      = 0,
+		.value     = 0
+	}
 };
 
 /* DEVICEs */
 led_t leds[] = {
-	{"Led0", &gpios[0], led_off, led_flags_active_low}
+	{
+		.name       = "Led0",
+		.gpio       = &gpios[0],
+		.brightness = led_off,
+		.flags      = led_flags_active_low
+	}
 };
 
 button_t buttons[] = {
@@ -42,9 +84,9 @@ button_t buttons[] = {
 	}
 };
 log_t logs = {
-	.name = "Log", 
-	.uart = &uarts[0], 
-	.level = log_level
+		.name  = "Log", 
+		.uart  = &uarts[0], 
+		.level = log_level
 };
 
 /*prototypes ----------------------------------------------------------------------------*/

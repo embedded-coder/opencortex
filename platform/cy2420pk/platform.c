@@ -109,6 +109,7 @@ uart_t uarts[] = {
 		.parity    = parity_none,
 		.stopbit   = stopbits_1,
 		.flowctrl  = flowctrl_none,
+		.irq       = irq_rxne,
 		.port      = 1,
 		.value     = 0
 	}

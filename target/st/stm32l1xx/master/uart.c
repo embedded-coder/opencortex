@@ -48,14 +48,28 @@ static uint16_t uart_attrs[]={
 	USART_HardwareFlowControl_None,
 	USART_HardwareFlowControl_RTS,
 	USART_HardwareFlowControl_CTS,
-	USART_HardwareFlowControl_RTS_CTS
+	USART_HardwareFlowControl_RTS_CTS,
+	/*irq resource*/
+	USART_IT_PE,
+	USART_IT_TXE,
+	USART_IT_TC,
+	USART_IT_RXNE,
+	USART_IT_ORE_RX,
+	USART_IT_IDLE,
+	USART_IT_LBD,
+	USART_IT_CTS,
+	USART_IT_ERR,
+	USART_IT_ORE_ER,
+	USART_IT_NE,
+	USART_IT_FE
 };
+
 
 /*prototypes ----------------------------------------------------------------------------*/
 
 /*private -------------------------------------------------------------------------------*/
 uint32_t stm32l1xx_uart_init(uint8_t port, uint32_t baudrate, uint16_t parity, 
-						uint16_t datawidth, uint16_t stopbit, uint16_t flowctrl)
+					uint16_t datawidth, uint16_t stopbit, uint16_t flowctrl, uint16_t irq)
 {
 	assert_return_err(port < dim(uart_port), uart_err_parameter);
 	
@@ -74,6 +88,11 @@ uint32_t stm32l1xx_uart_init(uint8_t port, uint32_t baudrate, uint16_t parity,
 	uart_cfg.USART_HardwareFlowControl = uart_attrs[flowctrl];
 	
 	USART_Init(uart_port[port], &uart_cfg);
+	
+	if(irq == irq_rxne)
+	{
+		USART_ITConfig(uart_port[port], uart_attrs[irq], ENABLE);
+	}
 
 	USART_Cmd(uart_port[port], ENABLE);
 
@@ -104,7 +123,7 @@ uint32_t uart_init(uart_t *uart)
 		gpio_init(uart->rxpin);
 
 	stm32l1xx_uart_init(uart->port, uart->baudrate, uart->parity,
-						uart->datawidth, uart->stopbit, uart->flowctrl);
+			uart->datawidth, uart->stopbit, uart->flowctrl, uart->irq);
 	return success;
 }
 
