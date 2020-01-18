@@ -9,9 +9,6 @@
 #include "assert.h"
 #include "log.h"
 /*macros --------------------------------------------------------------------------------*/
-
-
-
 #define ZEROPAD     bit(0)    /* pad with zero */
 #define SIGN        bit(1)    /* unsigned/signed long */
 #define PLUS        bit(2)    /* show plus */
@@ -21,13 +18,18 @@
 #define LARGE       bit(6)    /* use 'ABCDEF' instead of 'abcdef' */
 
 /* private function */
-#define isdigit(c)  ((unsigned)((c) - '0') < 10)
+#define in_range(c, lo, up)  ((uint8_t)c >= lo && (uint8_t)c <= up)
+#define isprint(c)           in_range(c, 0x20, 0x7f)
+#define isdigit(c)           in_range(c, '0', '9')
+#define isxdigit(c)          (isdigit(c) || in_range(c, 'a', 'f') || in_range(c, 'A', 'F'))
+#define islower(c)           in_range(c, 'a', 'z')
+#define isupper(c)           in_range(c, 'A', 'Z')
+#define isspace(c)           (c == ' ' || c == '\f' || c == '\n' || c == '\r' || c == '\t' || c == '\v')
 
 /*typedefs ------------------------------------------------------------------------------*/
 
 /*variables -----------------------------------------------------------------------------*/
-static log_t* glog = null;
-
+static uart_t* log_uart = null;
 /*prototypes ----------------------------------------------------------------------------*/
 
 /*private -------------------------------------------------------------------------------*/
@@ -89,6 +91,90 @@ _inline_ int divide(long *n, int base)
     return res;
 }
 #endif
+
+int tolower(int c) 
+{
+	if (isupper(c))
+		c -= 'A'-'a';
+	return c;
+}
+
+int toupper(int c)
+{
+	if (islower(c))
+		c -= 'a'-'A';
+	return c;
+}
+
+unsigned long simple_strtoul(const char *cp,char **endp,unsigned int base)
+{
+	unsigned long result = 0,value;
+
+	if (!base) {
+		base = 10;
+		if (*cp == '0') {
+			base = 8;
+			cp++;
+			if ((toupper(*cp) == 'X') && isxdigit(cp[1])) {
+				cp++;
+				base = 16;
+			}
+		}
+	} else if (base == 16) {
+		if (cp[0] == '0' && toupper(cp[1]) == 'X')
+			cp += 2;
+	}
+	while (isxdigit(*cp) &&
+	       (value = isdigit(*cp) ? *cp-'0' : toupper(*cp)-'A'+10) < base) {
+		result = result*base + value;
+		cp++;
+	}
+	if (endp)
+		*endp = (char *)cp;
+	return result;
+}
+
+long simple_strtol(const char *cp,char **endp,unsigned int base)
+{
+	if(*cp=='-')
+		return -simple_strtoul(cp+1,endp,base);
+	return simple_strtoul(cp,endp,base);
+}
+
+unsigned long long simple_strtoull(const char *cp,char **endp,unsigned int base)
+{
+	unsigned long long result = 0, value;
+
+	if (*cp == '0') {
+		cp++;
+		if ((toupper(*cp) == 'X') && isxdigit (cp[1])) {
+			base = 16;
+			cp++;
+		}
+		if (!base) {
+			base = 8;
+		}
+	}
+	if (!base) {
+		base = 10;
+	}
+	while (isxdigit (*cp) && (value = isdigit (*cp)
+				? *cp - '0'
+				: (islower (*cp) ? toupper (*cp) : *cp) - 'A' + 10) < base) {
+		result = result * base + value;
+		cp++;
+	}
+	if (endp)
+		*endp = (char *) cp;
+	return result;
+}
+
+long long simple_strtoll(const char *cp,char **endp,unsigned int base)
+{
+	if(*cp=='-')
+		return -simple_strtoull(cp+1,endp,base);
+	return simple_strtoull(cp,endp,base);
+}
 
 #ifdef log_precision
 static char *print_number(char *buf,
@@ -262,10 +348,10 @@ static char *print_number(char *buf,
     return buf;
 }
 
-uint32_t vsnprintf(char       *buf,
-                   size_t      size,
-                   const char *fmt,
-                   va_list     args)
+int vsnprintf(char          *buf,
+                 int         size,
+                 const char *fmt,
+                 va_list     args)
 {
 #ifdef log_longlong
     unsigned long long num;
@@ -527,15 +613,193 @@ uint32_t vsnprintf(char       *buf,
     return str - buf;
 }
 
+int vsscanf(const char * buf, const char * fmt, va_list args)
+{
+	const char *str = buf;
+	char *next;
+	int num = 0;
+	int qualifier;
+	int base;
+	int field_width = -1;
+	int is_sign = 0;
+
+	while(*fmt && *str) {
+		/* skip any white space in format */
+		/* white space in format matchs any amount of
+		 * white space, including none, in the input.
+		 */
+		if (isspace(*fmt)) {
+			while (isspace(*fmt))
+				++fmt;
+			while (isspace(*str))
+				++str;
+		}
+
+		/* anything that is not a conversion must match exactly */
+		if (*fmt != '%' && *fmt) {
+			if (*fmt++ != *str++)
+				break;
+			continue;
+		}
+
+		if (!*fmt)
+			break;
+		++fmt;
+		
+		/* skip this conversion.
+		 * advance both strings to next white space
+		 */
+		if (*fmt == '*') {
+			while (!isspace(*fmt) && *fmt)
+				fmt++;
+			while (!isspace(*str) && *str)
+				str++;
+			continue;
+		}
+
+		/* get field width */
+		if (isdigit(*fmt))
+			field_width = skip_atoi(&fmt);
+
+		/* get conversion qualifier */
+		qualifier = -1;
+		if (*fmt == 'h' || *fmt == 'l' || *fmt == 'L' || *fmt == 'Z') {
+			qualifier = *fmt;
+			fmt++;
+		}
+		base = 10;
+		is_sign = 0;
+
+		if (!*fmt || !*str)
+			break;
+
+		switch(*fmt++) {
+		case 'c':
+		{
+			char *s = (char *) va_arg(args,char*);
+			if (field_width == -1)
+				field_width = 1;
+			do {
+				*s++ = *str++;
+			} while(field_width-- > 0 && *str);
+			num++;
+		}
+		continue;
+		case 's':
+		{
+			char *s = (char *) va_arg(args, char *);
+			if(field_width == -1)
+				field_width = int_max;
+			/* first, skip leading white space in buffer */
+			while (isspace(*str))
+				str++;
+
+			/* now copy until next white space */
+			while (*str && !isspace(*str) && field_width--) {
+				*s++ = *str++;
+			}
+			*s = '\0';
+			num++;
+		}
+		continue;
+		case 'n':
+			/* return number of characters read so far */
+		{
+			int *i = (int *)va_arg(args,int*);
+			*i = str - buf;
+		}
+		continue;
+		case 'o':
+			base = 8;
+			break;
+		case 'x':
+		case 'X':
+			base = 16;
+			break;
+		case 'd':
+		case 'i':
+			is_sign = 1;
+		case 'u':
+			break;
+		case '%':
+			/* looking for '%' in str */
+			if (*str++ != '%') 
+				return num;
+			continue;
+		default:
+			/* invalid format; stop here */
+			return num;
+		}
+
+		/* have some sort of integer conversion.
+		 * first, skip white space in buffer.
+		 */
+		while (isspace(*str))
+			str++;
+
+		if (!*str || !isdigit(*str))
+			break;
+
+		switch(qualifier) {
+		case 'h':
+			if (is_sign) {
+				short *s = (short *) va_arg(args,short *);
+				*s = (short) simple_strtol(str,&next,base);
+			} else {
+				unsigned short *s = (unsigned short *) va_arg(args, unsigned short *);
+				*s = (unsigned short) simple_strtoul(str, &next, base);
+			}
+			break;
+		case 'l':
+			if (is_sign) {
+				long *l = (long *) va_arg(args,long *);
+				*l = simple_strtol(str,&next,base);
+			} else {
+				unsigned long *l = (unsigned long*) va_arg(args,unsigned long*);
+				*l = simple_strtoul(str,&next,base);
+			}
+			break;
+		case 'L':
+			if (is_sign) {
+				long long *l = (long long*) va_arg(args,long long *);
+				*l = simple_strtoll(str,&next,base);
+			} else {
+				unsigned long long *l = (unsigned long long*) va_arg(args,unsigned long long*);
+				*l = simple_strtoull(str,&next,base);
+			}
+			break;
+		case 'Z':
+		{
+			unsigned long *s = (unsigned long*) va_arg(args,unsigned long*);
+			*s = (unsigned long) simple_strtoul(str,&next,base);
+		}
+		break;
+		default:
+			if (is_sign) {
+				int *i = (int *) va_arg(args, int*);
+				*i = (int) simple_strtol(str,&next,base);
+			} else {
+				unsigned int *i = (unsigned int*) va_arg(args, unsigned int*);
+				*i = (unsigned int) simple_strtoul(str,&next,base);
+			}
+			break;
+		}
+		num++;
+
+		if (!next)
+			break;
+		str = next;
+	}
+	return num;
+}
+
 /*public --------------------------------------------------------------------------------*/
 
-uint32_t log_init(log_t* log)
+uint32_t log_init(uart_t* uart)
 {
-	assert_return_err(log, log_err_parameter);
+	assert_return_err(uart, log_err_parameter);
 
-	glog = log;
-	
-	uart_init(glog->uart);
+	log_uart = uart;
 
 	return success;
 }
@@ -543,7 +807,7 @@ uint32_t log_init(log_t* log)
 void log_printf(const char *fmt, ...)
 {
     va_list args;
-    size_t length;
+    int length;
     static char log_buf[log_buf_size];
 
     va_start(args, fmt);
@@ -556,8 +820,20 @@ void log_printf(const char *fmt, ...)
     if (length > log_buf_size - 1)
         length = log_buf_size - 1;
 
-	uart_send_str(glog->uart, log_buf);
+	uart_puts(log_uart, log_buf);
 
     va_end(args);
+}
+
+int log_scanf(const char * buf, const char * fmt, ...)
+{
+	va_list args;
+	int i;
+
+	va_start(args,fmt);
+	i = vsscanf(buf,fmt,args);
+	va_end(args);
+	
+	return i;
 }
 

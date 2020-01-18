@@ -21,7 +21,7 @@
 /*variables -----------------------------------------------------------------------------*/
 
 /*prototypes ----------------------------------------------------------------------------*/
-uint32_t flash_earse(uint32_t flash, uint32_t nbytes);
+uint32_t flash_erase(uint32_t flash, uint32_t nbytes);
 
 uint32_t flash_write(uint32_t flash, uint32_t* data, uint32_t nbytes);
 

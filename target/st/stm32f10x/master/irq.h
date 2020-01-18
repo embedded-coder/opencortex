@@ -1,36 +1,33 @@
 /*****************************************************************************************
-* @file               : hello-world.c
+* @file               : irq.h
 * @author             : ayangs
-* @date               : 2019/02/19
-* @brief              : Source files for hello-world.
+* @date               : 2019/09/22
+* @brief              : Head files for irq.
 ******************************************************************************************/
+#ifndef _irq_h_
+#define _irq_h_
 /*includes ------------------------------------------------------------------------------*/
-#include "platform.h"
+#include "typedef.h"
 
 /*macros --------------------------------------------------------------------------------*/
+#define irq_group_pro0_sub4   0
+#define irq_group_pro1_sub3   1
+#define irq_group_pro2_sub2   2
+#define irq_group_pro3_sub1   3
+#define irq_group_pro4_sub0   4
 
 /*typedefs ------------------------------------------------------------------------------*/
+typedef struct irq{
+	char*    name;
+	uint32_t group            :3;
+	uint32_t reserved         :29;
+}irq_t;
+
 
 /*variables -----------------------------------------------------------------------------*/
 
 /*prototypes ----------------------------------------------------------------------------*/
+uint32_t irq_init(irq_t *irq);
 
-/*private -------------------------------------------------------------------------------*/
-
-/*public --------------------------------------------------------------------------------*/
-
-void example_process(void)
-{
-	while(1)
-	{
-		log_out(verbose, "hello verbose! %d", 1024);
-		log_out(debug, "hello debug! %d", 1024);
-		log_out(info, "hello info! %d", 1024);
-		log_out(warning, "hello warning! %d", 1024);
-		log_out(error, "hello error! %d", 1024);
-		log_out(fatal, "hello fatal! %d\n\r", 1024);
-
-		delay_ms(500);
-	}
-}
+#endif //_irq_h_
 

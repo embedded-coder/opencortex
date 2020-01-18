@@ -13,6 +13,7 @@
 #include "cpu.h"
 
 /* master drivers */
+#include "irq.h"
 #include "gpio.h"
 #include "uart.h"
 #include "flash.h"
@@ -27,6 +28,9 @@
 #include "errno.h"
 #include "assert.h"
 #include "version.h"
+
+/*protocol*/
+#include "ymodem.h"
 
 /*macros --------------------------------------------------------------------------------*/
 

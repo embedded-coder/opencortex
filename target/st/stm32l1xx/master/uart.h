@@ -46,6 +46,7 @@ typedef enum uart_attr{
 	flowctrl_cts,
 	flowctrl_rts_cts,
 	/*irq resource*/
+	irq_none,
 	irq_pe,
 	irq_txe,
 	irq_tc,
@@ -65,12 +66,7 @@ typedef enum uart_attr{
 /*prototypes ----------------------------------------------------------------------------*/
 uint32_t uart_init(uart_t *uart);
 
-uint32_t uart_send(uart_t *uart, char c);
-
-uint32_t uart_send_str(uart_t *uart, char *s);
-
-uint32_t uart_send_dec(uart_t *uart, uint32_t l, uint8_t len);
-
+uint32_t uart_puts(uart_t *uart, char *s);
 
 #endif //_uart_h_
 

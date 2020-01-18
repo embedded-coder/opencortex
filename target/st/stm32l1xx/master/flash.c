@@ -77,7 +77,7 @@ uint32_t stm32l1xx_flash_write(uint32_t flash, uint32_t* data, uint32_t nbytes)
 
 /*public --------------------------------------------------------------------------------*/
 
-uint32_t flash_earse(uint32_t flash, uint32_t nbytes)
+uint32_t flash_erase(uint32_t flash, uint32_t nbytes)
 {
 	assert_return_err(flash > flash_base, flash_err_parameter);
 	

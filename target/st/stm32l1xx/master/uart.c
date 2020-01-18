@@ -15,7 +15,7 @@
 
 /*variables -----------------------------------------------------------------------------*/
 
-static uint32_t uart_clk[]={
+static uint32_t uart_clks[]={
 	RCC_APB2Periph_USART1,
 	RCC_APB1Periph_USART2,
 	RCC_APB1Periph_USART3,
@@ -23,7 +23,7 @@ static uint32_t uart_clk[]={
 	RCC_APB1Periph_UART5
 };
 
-static void* uart_port[]={
+static void* uart_ports[]={
 	USART1,
 	USART2,
 	USART3,
@@ -50,6 +50,7 @@ static uint16_t uart_attrs[]={
 	USART_HardwareFlowControl_CTS,
 	USART_HardwareFlowControl_RTS_CTS,
 	/*irq resource*/
+	0,
 	USART_IT_PE,
 	USART_IT_TXE,
 	USART_IT_TC,
@@ -71,12 +72,12 @@ static uint16_t uart_attrs[]={
 uint32_t stm32l1xx_uart_init(uint8_t port, uint32_t baudrate, uint16_t parity, 
 					uint16_t datawidth, uint16_t stopbit, uint16_t flowctrl, uint16_t irq)
 {
-	assert_return_err(port < dim(uart_port), uart_err_parameter);
+	assert_return_err(port < dim(uart_ports), uart_err_parameter);
 	
 	if(port == 0)
-		RCC_APB2PeriphClockCmd(uart_clk[port], ENABLE);
+		RCC_APB2PeriphClockCmd(uart_clks[port], ENABLE);
 	else
-		RCC_APB1PeriphClockCmd(uart_clk[port], ENABLE);
+		RCC_APB1PeriphClockCmd(uart_clks[port], ENABLE);
 
 	USART_InitTypeDef uart_cfg={};
 	
@@ -87,26 +88,26 @@ uint32_t stm32l1xx_uart_init(uint8_t port, uint32_t baudrate, uint16_t parity,
 	uart_cfg.USART_Mode 	           = USART_Mode_Rx | USART_Mode_Tx;
 	uart_cfg.USART_HardwareFlowControl = uart_attrs[flowctrl];
 	
-	USART_Init(uart_port[port], &uart_cfg);
+	USART_Init(uart_ports[port], &uart_cfg);
 	
 	if(irq == irq_rxne)
 	{
-		USART_ITConfig(uart_port[port], uart_attrs[irq], ENABLE);
+		USART_ITConfig(uart_ports[port], uart_attrs[irq], ENABLE);
 	}
 
-	USART_Cmd(uart_port[port], ENABLE);
+	USART_Cmd(uart_ports[port], ENABLE);
 
-	USART_GetFlagStatus(uart_port[port], USART_FLAG_TC);
+	USART_GetFlagStatus(uart_ports[port], USART_FLAG_TC);
 	return success;
 }
 
 uint32_t stm32l1xx_uart_send(uint8_t port, char c)
 {
-	assert_return_err(port < dim(uart_port), uart_err_parameter);
+	assert_return_err(port < dim(uart_ports), uart_err_parameter);
 	
-	USART_SendData(uart_port[port], c);
+	USART_SendData(uart_ports[port], c);
 
-	while (USART_GetFlagStatus(uart_port[port], USART_FLAG_TXE) == RESET);
+	while (USART_GetFlagStatus(uart_ports[port], USART_FLAG_TXE) == RESET);
 
 	return success;
 }
@@ -127,53 +128,15 @@ uint32_t uart_init(uart_t *uart)
 	return success;
 }
 
-uint32_t uart_send(uart_t *uart, char c)
-{
-	assert_return_err(uart, uart_err_parameter);
-
-	uart->value = c;
-	
-	stm32l1xx_uart_send(uart->port, uart->value);
-
-	return success;
-}
-
-uint32_t uart_send_str(uart_t *uart, char *s)
+uint32_t uart_puts(uart_t *uart, char *s)
 {
 	assert_return_err(uart, uart_err_parameter);
 
 	while(*s != 0)
 	{
-		uart_send(uart, *s);
+		stm32l1xx_uart_send(uart->port, *s);
 		s++;
 	}
 	return success;
 }
-
-uint32_t uart_send_dec(uart_t *uart, uint32_t l, uint8_t len)
-{
-	assert_return_err(uart, uart_err_parameter);
-
-	uint8_t  i = 0;
-	uint32_t p = 1;
-
-	for(i = 1; i < len; i++)
-		p *= 10;
-
-	while(p > 0)
-	{
-		i = (uint8_t)(l / p);
-		uart_send(uart, '0' + i);
-		l = l - (i * p);
-
-		p = p / 10;
-	}
-
-	return success;
-}
-
-
-
-
-
 
