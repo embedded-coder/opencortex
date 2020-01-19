@@ -39,4 +39,9 @@ char* get_build_time(void)
 	return time;
 }
 
+char* get_build_year(void)
+{
+	char* year = build_date;
+	return year + 7;
+}
 /*********************************************END OF FILE**********************/

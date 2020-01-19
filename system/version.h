@@ -22,4 +22,5 @@ extern char* get_build_date(void);
 
 extern char* get_build_time(void);
 
+extern char* get_build_year(void);
 #endif /* _version_h_ */

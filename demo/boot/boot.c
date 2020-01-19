@@ -9,10 +9,18 @@
 #include "boot.h"
 
 /*macros --------------------------------------------------------------------------------*/
+/*
+ *  +-------------+-------------------+-------------------+----------+
+ *  |    boot     |       app0        |        app1       |    info  |
+ *  +-------------+-------------------+-------------------+----------+
+ *  |    130kb    |       190kb       |        190kb      |    2kb   |
+ *  +-------------+-------------------+-------------------+----------+
+ **/
 #define boot_bootloadr    flash_page(0)  //0x08000000
-#define boot_application0 flash_page(64) //0x08020000
-#define boot_application1 flash_page(128)//0x08040000
-#define boot_info_page    flash_page(255)//0x080‭7f800‬
+#define boot_application0 flash_page(65) //0x08020000
+#define boot_application1 flash_page(160)//0x08040000
+#define boot_info_page    flash_page(255)//0x080?7f800?
+#define boot_page_end     flash_page(256)//0x080?80000?
 
 #define boot_magic_nbr    (0x4f50454e)
 /*typedefs ------------------------------------------------------------------------------*/
@@ -36,6 +44,7 @@ static boot_info_t boot_info;
 /*private -------------------------------------------------------------------------------*/
 void boot_logo(void)
 {
+	char* year = get_build_year();
 	char* date = get_build_date();
 	char* ver  = get_build_version();
 	
@@ -44,7 +53,7 @@ void boot_logo(void)
 	log_printf("|(_)|_)(/_| |(_(_)|  | (/_><        |\n\r");
 	log_printf("|   |                               |\n\r");
 	log_printf("+-----------------------------------+\n\r");
-	log_printf("|2018-2010 Copyright @ EmbeddedCoder|\n\r");
+	log_printf("|2018-%s Copyright @ EmbeddedCoder|\n\r",year);
 	log_printf("|           v%s Build %s|\n\r",ver,date);
 	log_printf("+-----------------------------------+\n\r");
 }
@@ -72,7 +81,7 @@ void boot_enter(void)
 {
 	button_attach(&buttons[0],button_event_press_edge,bootbtn_pess_edge_handler);
 
-	log_printf("Press Button to Enter BootLoader...%ds", 5);
+	log_printf("> Press to Enter BootLoader........%ds", 5);
 
 	for(int32_t s = 4; s >= 0; s--)
 	{
@@ -88,16 +97,16 @@ void boot_enter(void)
 			break;
 	}
 	
-	log_printf("\n\r");
 	button_dettach(&buttons[0],button_event_press_edge);
 }
 
 void boot_menu(void)
 {
+	log_printf("\n\r+-----------------------------------+\n\r");
 	log_printf("[1] Jump To App\n\r");
 	log_printf("[2] App Upgrade\n\r");
 	
-	log_printf("Press Button to Select Option: %d", boot_option);
+	log_printf("> Press Button to Select Option: %d", boot_option);
 	
 	button_attach(&buttons[0],button_event_short_click,bootopt_short_press_handler);
 	button_attach(&buttons[0],button_event_press_delay,bootopt_press_delay_handler);
@@ -111,6 +120,8 @@ void boot_menu(void)
 		}
 		log_printf("\b%d", boot_option);
 	}
+	
+	log_printf("\n\r+-----------------------------------+");
 	button_dettach(&buttons[0],button_event_short_click);
 	button_dettach(&buttons[0],button_event_press_delay);
 }
@@ -202,6 +213,7 @@ uint32_t ymodem_rcv_file_dump_handler(uint32_t size)
 
 void example_process(void)
 {
+	uint32_t ret = 0;
 	boot_logo();
 	boot_info_read();
 	
@@ -215,7 +227,15 @@ void example_process(void)
 	if(2 == boot_option)
 	{
 		log_out(info,"enter upgrade mode...");
-		ymodem_receive();
+		ret = ymodem_receive();
+		if(success == ret)
+		{
+			log_out(info,"upgrade success.");
+		}
+		else
+		{
+			log_out(info,"upgrade failed.");
+		}
 	}
 	else
 	{

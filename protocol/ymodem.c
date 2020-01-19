@@ -159,7 +159,7 @@ uint32_t ymodem_show_progress(char* title,uint32_t cur, uint32_t total)
 		}
 		else
 		{
-			log_printf(" ");
+			log_printf("-");
 		}
 	}
 
@@ -169,11 +169,6 @@ uint32_t ymodem_show_progress(char* title,uint32_t cur, uint32_t total)
 	//show percent (4)
 	log_printf("%3d%.",progress);
 
-	//show result
-	if(100 == progress)
-	{
-		log_printf("\b\b\b\bdone");
-	}
 	return success;
 }
 
