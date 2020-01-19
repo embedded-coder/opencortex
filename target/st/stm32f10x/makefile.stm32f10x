@@ -40,7 +40,7 @@ CFLAGS += -ffunction-sections -fdata-sections
 CFLAGS += -fno-exceptions
 CFLAGS += -D"assert_param(expr)=((void)0)"
 
-LDFLAGS +=-nostartfiles
+LDFLAGS += -nostartfiles
 LDFLAGS += -Wl,--no-whole-archive -lm
 
 OOCD_TARGET = stm32f1x
