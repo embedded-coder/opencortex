@@ -59,7 +59,7 @@ static uint8_t gpio_dirs[]={
 	GPIO_Mode_IPD,        //Pull-down input, default low
 	GPIO_Mode_IPU,        //Pull-up input, default high
 	GPIO_Mode_Out_OD,     //Open-drain output, 0/3.3v
-	GPIO_Mode_Out_PP,     //Pushâ€“pull output, 0/5v
+	GPIO_Mode_Out_PP,     //Push¨Cpull output, 0/5v
 	GPIO_Mode_AF_OD,      //Multiplex open drain output, wired and
 	GPIO_Mode_AF_PP       //Multiplexed push-pull output, digt interface
 };
@@ -83,6 +83,16 @@ uint32_t stm32f10x_gpio_init(uint8_t port, uint8_t pin, uint8_t dir)
 
 	return success;
 }
+
+uint32_t stm32f10x_gpio_deinit(uint8_t port)
+{
+	assert_return_err(port < dim(gpio_ports), gpio_err_parameter);
+	
+	GPIO_DeInit(gpio_ports[port]);
+
+	return success;
+}
+
 
 uint32_t stm32f10x_gpio_get(uint8_t port, uint8_t pin, uint8_t dir, uint8_t *value)
 {
@@ -119,6 +129,14 @@ uint32_t gpio_init(gpio_t *gpio)
 	return success;
 }
 
+uint32_t gpio_deinit(gpio_t *gpio)
+{
+	assert_return_err(gpio, gpio_err_parameter);
+	
+	stm32f10x_gpio_deinit(gpio->port);
+
+	return success;
+}
 
 uint32_t gpio_set(gpio_t *gpio, uint8_t *value)
 {

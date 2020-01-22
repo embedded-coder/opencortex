@@ -27,6 +27,7 @@ typedef struct led{
 
 /*prototypes ----------------------------------------------------------------------------*/
 uint32_t led_init(led_t *led);
+uint32_t led_deinit(led_t *led);
 uint32_t led_set_brightness(led_t *led, uint8_t *brightness);
 uint32_t led_get_brightness(led_t *led, uint8_t *brightness);
 

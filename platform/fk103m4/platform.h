@@ -42,6 +42,6 @@ extern button_t buttons[];
 extern log_t logs;
 /*prototypes ----------------------------------------------------------------------------*/
 void platform_init(void);
-
+void platform_deinit(void);
 #endif //_platform_h_
 

@@ -35,8 +35,20 @@ uint32_t stm32f10x_irq_init(irq_t *irq)
 	if(null == girq)
 	{
 		girq = irq;
+		
 		NVIC_PriorityGroupConfig(irq_group[irq->group]); 
+		
+		__enable_irq();
 	}
+	return success;
+}
+
+uint32_t stm32f10x_irq_deinit(void)
+{
+	girq = null;
+	
+	__disable_irq();
+
 	return success;
 }
 
@@ -44,8 +56,8 @@ uint32_t stm32f10x_irq_set(void)
 {
 	return success;
 }
-/*public --------------------------------------------------------------------------------*/
 
+/*public --------------------------------------------------------------------------------*/
 
 uint32_t irq_init(irq_t *irq)
 {
@@ -54,5 +66,11 @@ uint32_t irq_init(irq_t *irq)
 	return success;
 }
 
+uint32_t irq_deinit(void)
+{
+	stm32f10x_irq_deinit();
+	
+	return success;
+}
 
 

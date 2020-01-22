@@ -37,6 +37,15 @@ uint32_t led_init(led_t *led)
 	return success;
 }
 
+uint32_t led_deinit(led_t *led)
+{
+	assert_return_err(led,led_err_parameter);
+
+	gpio_deinit(led->gpio);
+
+	return success;
+}
+
 uint32_t led_set_brightness(led_t *led, uint8_t *brightness)
 {
 	assert_return_err(led,led_err_parameter);

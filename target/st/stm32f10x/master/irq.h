@@ -29,5 +29,7 @@ typedef struct irq{
 /*prototypes ----------------------------------------------------------------------------*/
 uint32_t irq_init(irq_t *irq);
 
+uint32_t irq_deinit(void);
+
 #endif //_irq_h_
 

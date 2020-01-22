@@ -22,7 +22,7 @@
     0                                      \
 }
 
-#define uart_irq_config_default           \
+#define uart_irq_default                  \
 {                                         \
 	uart_irq_rxne,                        \
 	0,                                    \
@@ -112,7 +112,7 @@ uart_t uarts[] = {
 		.txio      = &gpios[2],
 		.rxio      = &gpios[3],
         .config    = uart_config_default,
-		.irq       = uart_irq_config_default,
+		.irq       = uart_irq_default,
 		.rxfifo    = &uart_fifo[0],
 		.port      = 0,
 		.mode      = mode_tx_rx,
@@ -122,7 +122,7 @@ uart_t uarts[] = {
 		.txio      = &gpios[4],
 		.rxio      = &gpios[5],
         .config    = uart_config_default,
-		.irq       = uart_irq_config_default,
+		.irq       = uart_irq_default,
 		.rxfifo    = &uart_fifo[1],
 		.port      = 1,
 		.mode      = mode_tx_rx,
@@ -161,7 +161,9 @@ button_t buttons[] = {
 void platform_init(void)
 {
 	SystemInit();
+	
 	irq_init(&irqs);
+	
 	delay_init(1000);
 
 	for(uint8_t i = 0; i < dim(uarts); i++)
@@ -180,6 +182,24 @@ void platform_init(void)
 	log_init(&uarts[1]);
 	ymodem_init(&uarts[0]);
 
+}
+
+void platform_deinit(void)
+{
+	irq_deinit();
+
+	for(uint8_t i = 0; i < dim(uarts); i++)
+	{
+		uart_deinit(&uarts[i]);
+	}
+	for(uint8_t i = 0; i < dim(leds); i++)
+	{
+		led_deinit(&leds[i]);
+	}
+	for(uint8_t i = 0; i < dim(buttons); i++)
+	{
+		button_deinit(&buttons[i]);
+	}
 }
 
 void USART1_IRQHandler(void)

@@ -97,18 +97,20 @@ static uint16_t uart_irq_resources[]={
 /*private -------------------------------------------------------------------------------*/
 uint32_t stm32f10x_uart_set_rcc(uint8_t port, uint8_t state)
 {
+	assert_return_err(port < dim(uart_ports), uart_err_parameter);
 	if(port == 0)
-		RCC_APB2PeriphClockCmd(uart_clks[port], state);
+		RCC_APB2PeriphClockCmd(uart_clks[port], !!state);
 	else
-		RCC_APB1PeriphClockCmd(uart_clks[port], state);
+		RCC_APB1PeriphClockCmd(uart_clks[port], !!state);
 	
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, ENABLE);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_AFIO, !!state);
 	return success;
 }
 
 uint32_t stm32f10x_uart_set_attr(uint8_t port, uint8_t mode, uint32_t baudrate, uint8_t databits, 
                                        uint8_t stopbits, uint8_t parity, uint8_t flowctrl)
 {
+	assert_return_err(port < dim(uart_ports), uart_err_parameter);
 	USART_InitTypeDef uart_cfg = {};
 	
 	uart_cfg.USART_BaudRate            = baudrate;
@@ -126,23 +128,26 @@ uint32_t stm32f10x_uart_set_attr(uint8_t port, uint8_t mode, uint32_t baudrate, 
 uint32_t stm32f10x_uart_set_irq(uint8_t port, uint8_t resource, uint8_t priority, 
                                                     uint8_t subpriority, uint8_t state)
 {
+	assert_return_err(port < dim(uart_ports), uart_err_parameter);
 	NVIC_InitTypeDef irq_cfg = {};
 	
 	irq_cfg.NVIC_IRQChannel                   = uart_irqs[port];
 	irq_cfg.NVIC_IRQChannelPreemptionPriority = priority;
 	irq_cfg.NVIC_IRQChannelSubPriority        = subpriority;
-	irq_cfg.NVIC_IRQChannelCmd                = state;
+	irq_cfg.NVIC_IRQChannelCmd                = !!state;
 
 	NVIC_Init(&irq_cfg);
 
-	USART_ITConfig(uart_ports[port], uart_irq_resources[resource], state);
+	USART_ITConfig(uart_ports[port], uart_irq_resources[resource], !!state);
 
 	return success;
 }
 
 uint32_t stm32f10x_uart_set_state(uint8_t port, uint8_t state)
 {
-	USART_Cmd(uart_ports[port], state);
+	assert_return_err(port < dim(uart_ports), uart_err_parameter);
+
+	USART_Cmd(uart_ports[port], !!state);
 	
 	return success;
 }
@@ -169,24 +174,52 @@ uint32_t uart_init(uart_t *uart)
 	stm32f10x_uart_set_rcc(uart->port, ENABLE);
 
 	if(null != uart->txio)
+	{
 		gpio_init(uart->txio);
-
+	}
+	
 	if(null != uart->rxio)
+	{
 		gpio_init(uart->rxio);
+	}
 	
 	stm32f10x_uart_set_attr(uart->port, uart->mode, config->baud_rate, config->data_bits, 
                                      config->stop_bits, config->parity, config->flowctrl);
 
-	if(uart_irq_none == irq->resource)
-		stm32f10x_uart_set_irq(uart->port, irq->resource, irq->priority, irq->subpriority, DISABLE);
-	else
+	if(uart_irq_none != irq->resource)
+	{
 		stm32f10x_uart_set_irq(uart->port, irq->resource, irq->priority, irq->subpriority, ENABLE);
+	}
 
 	stm32f10x_uart_set_state(uart->port, ENABLE);
 
 	uart->rxfifo->head = 0;
 	uart->rxfifo->tail = 0;
 	
+	return success;
+}
+
+uint32_t uart_deinit(uart_t *uart)
+{
+	assert_return_err(uart, uart_err_parameter);
+
+	uart_irq_t* irq    = &(uart->irq);
+
+	stm32f10x_uart_set_rcc(uart->port, DISABLE);
+
+	if(null != uart->txio)
+		gpio_deinit(uart->txio);
+
+	if(null != uart->rxio)
+		gpio_deinit(uart->rxio);
+	
+	if(uart_irq_none != irq->resource)
+	{
+		stm32f10x_uart_set_irq(uart->port, irq->resource, irq->priority, irq->subpriority, DISABLE);
+	}
+
+	stm32f10x_uart_set_state(uart->port, DISABLE);
+
 	return success;
 }
 

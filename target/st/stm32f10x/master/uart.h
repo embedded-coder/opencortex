@@ -127,6 +127,8 @@ typedef struct{
 /*prototypes ----------------------------------------------------------------------------*/
 uint32_t uart_init(uart_t *uart);
 
+uint32_t uart_deinit(uart_t *uart);
+
 uint32_t uart_putc(uart_t *uart, char c);
 
 uint32_t uart_puts(uart_t *uart, char *s);

@@ -48,6 +48,17 @@ uint32_t button_init(button_t *newbutton)
 	return success;
 }
 
+uint32_t button_deinit(button_t *newbutton)
+{
+	assert_return_err(newbutton, button_err_parameter);
+
+	button_head     = null;
+
+	gpio_deinit(newbutton->gpio);
+
+	return success;
+}
+
 uint32_t button_attach(button_t *button, button_event_e event, button_callback callback)
 {
 	assert_return_err(button, button_err_parameter);

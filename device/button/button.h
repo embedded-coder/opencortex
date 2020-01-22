@@ -70,6 +70,7 @@ typedef struct button{
 
 /*prototypes ----------------------------------------------------------------------------*/
 uint32_t button_init(button_t *newbutton);
+uint32_t button_deinit(button_t *newbutton);
 uint32_t button_attach(button_t *button, button_event_e event, button_callback callback);
 uint32_t button_dettach(button_t *button, button_event_e event);
 uint32_t button_get_status(void);

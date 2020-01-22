@@ -38,6 +38,8 @@ typedef enum gpio_dir{
 /*prototypes ----------------------------------------------------------------------------*/
 uint32_t gpio_init(gpio_t *gpio);
 
+uint32_t gpio_deinit(gpio_t *gpio);
+
 uint32_t gpio_set(gpio_t *gpio, uint8_t *value);
 
 uint32_t gpio_get(gpio_t *gpio, uint8_t *value);
