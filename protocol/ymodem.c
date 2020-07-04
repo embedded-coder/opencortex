@@ -201,7 +201,7 @@ uint32_t ymodem_rx_process(char header)
 #if log_level <= verbose
 			log_out(verbose,"data:");
 			for(uint16_t i = 0; i < length; i++)
-				log_printf(" %d",ymodem_rbuf[i]);
+				log_printf(" %x",ymodem_rbuf[i]);
 #endif
 
 			/* check crc */
@@ -300,7 +300,7 @@ uint32_t ymodem_rx_process(char header)
 #if log_level <= verbose
 				log_out(verbose,"rcvd %d byte, info:",ymodem_rcvdsize);
 				for(uint16_t i = 0; i < rcv_size; i++)
-					log_printf(" %d",ymodem_rbuf[ymodem_data_index + i]);
+					log_printf(" %x",ymodem_rbuf[ymodem_data_index + i]);
 #endif
 			}
 

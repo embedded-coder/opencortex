@@ -179,8 +179,8 @@ void platform_init(void)
 		button_init(&buttons[i]);
 	}
 	
-	log_init(&uarts[1]);
-	ymodem_init(&uarts[0]);
+	log_init(&uarts[0]);
+	ymodem_init(&uarts[1]);
 
 }
 
